@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "Client startup loading optimizations.",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "org.kvxd.carbon.fabric.CarbonFabricClient"
+    ],
+    "main": [
+      "org.kvxd.carbon.fabric.CarbonFabric"
+    ]
+  },
+  "mixins": [
+    "carbon.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${fabric_loader_version}",
+    "minecraft": "${minecraft_version}"
+  }
+}

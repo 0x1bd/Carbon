@@ -1,67 +1,68 @@
 plugins {
-    id("net.fabricmc.fabric-loom") version "1.16-SNAPSHOT"
+    id("java")
     id("maven-publish")
+    id("net.fabricmc.fabric-loom") version "1.16-SNAPSHOT" apply false
+    id("net.neoforged.moddev") version "2.0.141" apply false
 }
 
-version = project.property("mod_version") as String
-group = project.property("maven_group") as String
+val targetJavaVersion = (property("java_version") as String).toInt()
 
-base {
-    archivesName.set(project.property("archives_base_name") as String)
+allprojects {
+    version = "${rootProject.property("mod_version")}-${rootProject.property("minecraft_version")}"
+    group = rootProject.property("maven_group") as String
+
+    repositories {
+        mavenCentral()
+        maven("https://maven.fabricmc.net/") {
+            name = "Fabric"
+        }
+        maven("https://maven.neoforged.net/releases") {
+            name = "NeoForge"
+        }
+    }
 }
 
-val targetJavaVersion = 25
-java {
-    toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
-    withSourcesJar()
-}
+subprojects {
+    apply(plugin = "java")
+    apply(plugin = "maven-publish")
 
+    base {
+        archivesName.set("${rootProject.property("archives_base_name")}-${project.name}")
+    }
 
+    java {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+        withSourcesJar()
+    }
 
-repositories {
+    tasks.withType<JavaCompile>().configureEach {
+        options.encoding = "UTF-8"
+        options.release.set(targetJavaVersion)
+    }
 
-}
-
-dependencies {
-    minecraft("com.mojang:minecraft:${project.property("minecraft_version")}")
-    implementation("net.fabricmc:fabric-loader:${project.property("loader_version")}")
-}
-
-tasks.processResources {
-    inputs.property("version", project.version)
-    inputs.property("minecraft_version", project.property("minecraft_version"))
-    inputs.property("loader_version", project.property("loader_version"))
-    filteringCharset = "UTF-8"
-
-    filesMatching("fabric.mod.json") {
-        expand(
+    tasks.withType<ProcessResources>().configureEach {
+        val replacements = mapOf(
+            "mod_id" to rootProject.property("mod_id"),
+            "mod_name" to rootProject.property("mod_name"),
             "version" to project.version,
-            "minecraft_version" to project.property("minecraft_version")!!,
-            "loader_version" to project.property("loader_version")!!
+            "minecraft_version" to rootProject.property("minecraft_version"),
+            "minecraft_version_range" to rootProject.property("minecraft_version_range"),
+            "fabric_loader_version" to rootProject.property("fabric_loader_version"),
+            "neoforge_version" to rootProject.property("neoforge_version"),
+            "neoforge_loader_version_range" to rootProject.property("neoforge_loader_version_range"),
         )
-    }
-}
-
-tasks.withType<JavaCompile>().configureEach {
-    options.encoding = "UTF-8"
-    options.release.set(targetJavaVersion)
-}
-
-tasks.jar {
-    from("LICENSE") {
-        rename { "${it}_${project.base.archivesName.get()}" }
-    }
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            artifactId = project.property("archives_base_name") as String
-            from(components["java"])
+        inputs.properties(replacements)
+        filesMatching(listOf("fabric.mod.json", "META-INF/neoforge.mods.toml")) {
+            expand(replacements)
         }
     }
 
-    repositories {
-
+    publishing {
+        publications {
+            create<MavenPublication>("mavenJava") {
+                artifactId = "${rootProject.property("archives_base_name")}-${project.name}"
+                from(components["java"])
+            }
+        }
     }
 }
