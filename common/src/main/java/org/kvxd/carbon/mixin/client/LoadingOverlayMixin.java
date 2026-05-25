@@ -51,8 +51,6 @@ public abstract class LoadingOverlayMixin {
 
 		if (this.minecraft.screen != null) {
 			this.minecraft.screen.render(graphics, mouseX, mouseY, partialTick);
-		} else {
-			this.minecraft.gui.renderDeferredSubtitles();
 		}
 
 		ci.cancel();

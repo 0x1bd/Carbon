@@ -8,7 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadInstance;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 
 public final class DeferredReloadManager {
 	private static final Logger LOGGER = LogUtils.getLogger();
-	private static final Identifier GUI_ATLAS = Identifier.withDefaultNamespace("gui");
+	private static final ResourceLocation GUI_ATLAS = ResourceLocation.withDefaultNamespace("gui");
 	private static final Set<String> STARTUP_DEFER_ONLY_LISTENERS = Set.of(
 		"net.minecraft.client.sounds.SoundManager",
 		"net.minecraft.client.PeriodicNotificationManager",
@@ -138,7 +138,7 @@ public final class DeferredReloadManager {
 		startDeferredReload(batch);
 	}
 
-	public static boolean shouldLoadAtlasInStartupPass(final Identifier atlasId) {
+	public static boolean shouldLoadAtlasInStartupPass(final ResourceLocation atlasId) {
 		return !startupFastReloadActive || GUI_ATLAS.equals(atlasId);
 	}
 
