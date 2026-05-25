@@ -28,37 +28,58 @@ jobs:
           ref: refs/heads/${{ matrix.branch }}
           fetch-depth: 1
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-
       - name: Set up Java ${{ matrix.java }}
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: ${{ matrix.java }}
 
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Build with Gradle
-        run: ./gradlew build --build-cache
+        run: ./gradlew clean :fabric:build :neoforge:build --refresh-dependencies --build-cache --stacktrace
 
       - name: Stage release artifacts
+        shell: bash
         run: |
+          set -euo pipefail
+
           mkdir -p release-artifacts
-          
+
           BRANCH_SAFE="${{ matrix.branch }}"
-          
+          FOUND=0
+
           for dir in fabric/build/libs neoforge/build/libs; do
-            if [ -d "$dir" ]; then
-              for file in "$dir"/*.jar; do
-                [ -e "$file" ] || continue
-          
-                base="$(basename "$file")"
-                loader="$(echo "$dir" | cut -d/ -f1)"
-          
-                cp "$file" "release-artifacts/Carbon-${BRANCH_SAFE}-${loader}-${base}"
-              done
+            if [ ! -d "$dir" ]; then
+              echo "Skipping missing directory: $dir"
+              continue
             fi
+
+            loader="$(echo "$dir" | cut -d/ -f1)"
+
+            for file in "$dir"/*.jar; do
+              [ -e "$file" ] || continue
+
+              base="$(basename "$file")"
+
+              case "$base" in
+                *-sources.jar|*-javadoc.jar|*-dev.jar|*-dev-shadow.jar|*-all.jar)
+                  echo "Skipping non-release jar: $file"
+                  continue
+                  ;;
+              esac
+
+              cp "$file" "release-artifacts/Carbon-${BRANCH_SAFE}-${loader}-${base}"
+              FOUND=1
+            done
           done
-          
+
+          if [ "$FOUND" -eq 0 ]; then
+            echo "No release jars found in fabric/build/libs or neoforge/build/libs"
+            exit 1
+          fi
+
           ls -la release-artifacts
 
       - name: Upload jars
@@ -66,6 +87,7 @@ jobs:
         with:
           name: jars-${{ matrix.branch }}
           path: release-artifacts/*.jar
+          if-no-files-found: error
 
   release:
     runs-on: ubuntu-latest
@@ -77,6 +99,9 @@ jobs:
         with:
           path: release-artifacts
           merge-multiple: true
+
+      - name: List release artifacts
+        run: ls -la release-artifacts
 
       - name: Publish Latest Release
         uses: ncipollo/release-action@v1
