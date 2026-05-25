@@ -9,21 +9,11 @@
   "license": "MIT",
   "icon": "assets/carbon/icon.png",
   "environment": "*",
-  "entrypoints": {
-    "client": [
-      "org.kvxd.carbon.client.CarbonClient"
-    ],
-    "main": [
-      "org.kvxd.carbon.Carbon"
-    ]
-  },
   "mixins": [
     "carbon.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",
-    "fabric-language-kotlin": ">=${kotlin_loader_version}",
-    "fabric-api": "*",
     "minecraft": "${minecraft_version}"
   }
 }

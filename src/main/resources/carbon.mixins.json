@@ -6,6 +6,12 @@
   "mixins": [
   ],
   "client": [
+    "client.AtlasManagerMixin",
+    "client.LoadingOverlayMixin",
+    "client.MinecraftTickMixin",
+    "client.ReloadableResourceManagerMixin",
+    "client.TitleScreenMixin",
+    "client.UnihexProviderDefinitionMixin"
   ],
   "injectors": {
     "defaultRequire": 1
