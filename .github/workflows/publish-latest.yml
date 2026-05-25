@@ -43,14 +43,22 @@ jobs:
       - name: Stage release artifacts
         run: |
           mkdir -p release-artifacts
-
+          
           BRANCH_SAFE="${{ matrix.branch }}"
-
-          for file in build/libs/*.jar; do
-            base="$(basename "$file")"
-            cp "$file" "release-artifacts/Carbon-${BRANCH_SAFE}-${base}"
+          
+          for dir in fabric/build/libs neoforge/build/libs; do
+            if [ -d "$dir" ]; then
+              for file in "$dir"/*.jar; do
+                [ -e "$file" ] || continue
+          
+                base="$(basename "$file")"
+                loader="$(echo "$dir" | cut -d/ -f1)"
+          
+                cp "$file" "release-artifacts/Carbon-${BRANCH_SAFE}-${loader}-${base}"
+              done
+            fi
           done
-
+          
           ls -la release-artifacts
 
       - name: Upload jars
