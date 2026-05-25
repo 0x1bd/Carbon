@@ -3,13 +3,13 @@ plugins {
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:${rootProject.property("minecraft_version")}")
-    implementation("net.fabricmc:fabric-loader:${rootProject.property("fabric_loader_version")}")
+	minecraft("com.mojang:minecraft:${rootProject.property("minecraft_version")}")
+	compileOnly(files(rootProject.property("fabric_named_minecraft") as String))
+	implementation("net.fabricmc:fabric-loader:${rootProject.property("fabric_loader_version")}")
 }
 
 sourceSets {
-    main {
-        java.srcDir(rootProject.file("common/src/main/java"))
-        resources.srcDir(rootProject.file("common/src/main/resources"))
-    }
+	main {
+		resources.srcDir(rootProject.file("common/src/main/resources"))
+	}
 }

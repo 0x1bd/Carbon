@@ -2,8 +2,8 @@ package org.kvxd.carbon.mixin.client;
 
 import java.util.Map;
 import java.util.function.BiConsumer;
-import net.minecraft.client.resources.model.AtlasManager;
-import net.minecraft.resources.Identifier;
+import net.minecraft.client.texture.AtlasManager;
+import net.minecraft.util.Identifier;
 import org.kvxd.carbon.loading.DeferredReloadManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,7 +20,7 @@ public abstract class AtlasManagerMixin {
 	}
 
 	@Redirect(
-		method = "forEach",
+		method = "acceptAtlasTextures",
 		at = @At(value = "INVOKE", target = "Ljava/util/Map;forEach(Ljava/util/function/BiConsumer;)V")
 	)
 	private void carbon$exposeOnlyMenuAtlasesDuringStartup(final Map<Identifier, Object> atlases, final BiConsumer<Identifier, Object> action) {
