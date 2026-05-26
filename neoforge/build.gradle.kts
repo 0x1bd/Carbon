@@ -12,6 +12,11 @@ sourceSets {
 neoForge {
     version = rootProject.property("neoforge_version") as String
 
+    parchment {
+        minecraftVersion = rootProject.property("parchment_minecraft_version") as String
+        mappingsVersion = rootProject.property("parchment_mappings_version") as String
+    }
+
     mods {
         create(rootProject.property("mod_id") as String) {
             sourceSet(sourceSets.main.get())

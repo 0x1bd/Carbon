@@ -1,7 +1,7 @@
 plugins {
     id("java")
     id("maven-publish")
-    id("net.fabricmc.fabric-loom") version "1.16-SNAPSHOT" apply false
+    id("fabric-loom") version "1.16-SNAPSHOT" apply false
     id("net.neoforged.moddev") version "2.0.141" apply false
 }
 
@@ -18,6 +18,9 @@ allprojects {
         }
         maven("https://maven.neoforged.net/releases") {
             name = "NeoForge"
+        }
+        maven("https://maven.parchmentmc.org") {
+            name = "ParchmentMC"
         }
     }
 }

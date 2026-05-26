@@ -1,15 +1,15 @@
 plugins {
-    id("net.fabricmc.fabric-loom")
+    id("fabric-loom")
 }
 
 dependencies {
-	minecraft("com.mojang:minecraft:${rootProject.property("minecraft_version")}")
-	compileOnly(files(rootProject.property("fabric_named_minecraft") as String))
-	implementation("net.fabricmc:fabric-loader:${rootProject.property("fabric_loader_version")}")
+    minecraft("com.mojang:minecraft:${rootProject.property("minecraft_version")}")
+    add("mappings", "net.fabricmc:yarn:${rootProject.property("yarn_mappings")}:v2")
+    add("modImplementation", "net.fabricmc:fabric-loader:${rootProject.property("fabric_loader_version")}")
 }
 
 sourceSets {
-	main {
-		resources.srcDir(rootProject.file("common/src/main/resources"))
-	}
+    main {
+        resources.srcDir(rootProject.file("common/src/main/resources"))
+    }
 }
