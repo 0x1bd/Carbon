@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "${mod_id}",
+  "icon": "icon.png",
   "version": "${version}",
   "name": "${mod_name}",
   "description": "Client startup loading optimizations.",
