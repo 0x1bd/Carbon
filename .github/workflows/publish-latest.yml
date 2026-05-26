@@ -6,6 +6,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: publish-latest
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -36,9 +40,12 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+          cache-cleanup: always
 
       - name: Build with Gradle
-        run: ./gradlew clean :fabric:build :neoforge:build --refresh-dependencies --build-cache --stacktrace
+        run: ./gradlew --build-cache --stacktrace build
 
       - name: Stage release artifacts
         shell: bash
@@ -47,38 +54,27 @@ jobs:
 
           mkdir -p release-artifacts
 
-          BRANCH_SAFE="${{ matrix.branch }}"
-          FOUND=0
+          prop() {
+            awk -F= -v key="$1" '$1 == key { print $2; exit }' gradle.properties
+          }
 
-          for dir in fabric/build/libs neoforge/build/libs; do
-            if [ ! -d "$dir" ]; then
-              echo "Skipping missing directory: $dir"
-              continue
+          MOD_VERSION="$(prop mod_version)"
+          MINECRAFT_VERSION="$(prop minecraft_version)"
+          RELEASE_VERSION="${MOD_VERSION}-${MINECRAFT_VERSION}"
+
+          for loader in fabric neoforge; do
+            input="Carbon-${loader}-${RELEASE_VERSION}.jar"
+            source="${loader}/build/libs/${input}"
+            target="release-artifacts/Carbon-${RELEASE_VERSION}-${loader}.jar"
+
+            if [ ! -f "$source" ]; then
+              echo "Expected release jar not found: $source"
+              find "${loader}/build/libs" -maxdepth 1 -type f -name '*.jar' -print || true
+              exit 1
             fi
 
-            loader="$(echo "$dir" | cut -d/ -f1)"
-
-            for file in "$dir"/*.jar; do
-              [ -e "$file" ] || continue
-
-              base="$(basename "$file")"
-
-              case "$base" in
-                *-sources.jar|*-javadoc.jar|*-dev.jar|*-dev-shadow.jar|*-all.jar)
-                  echo "Skipping non-release jar: $file"
-                  continue
-                  ;;
-              esac
-
-              cp "$file" "release-artifacts/Carbon-${BRANCH_SAFE}-${loader}-${base}"
-              FOUND=1
-            done
+            cp "$source" "$target"
           done
-
-          if [ "$FOUND" -eq 0 ]; then
-            echo "No release jars found in fabric/build/libs or neoforge/build/libs"
-            exit 1
-          fi
 
           ls -la release-artifacts
 
