@@ -6,7 +6,7 @@ It targets Fabric and NeoForge, with releases built per Minecraft version branch
 
 ## Vanilla vs Carbon
 
-![Vanilla vs Carbon](https://github.com/user-attachments/assets/a2654ecc-0dd5-4cec-91ca-8242acb3bdae)
+<img width="800" height="450" alt="Image" src="https://github.com/user-attachments/assets/b0fbbd81-3c2e-4a4e-9457-7c97d8a0d125" />
 
 ## Supported Versions
 
